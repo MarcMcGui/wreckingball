@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Analytics;
 using TMPro;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 namespace BrickBreak
 {
@@ -29,13 +31,15 @@ namespace BrickBreak
         public bool generatingBlocks;
         public AdManager ads;
         public AudioSource blockSound;
-        public AudioSource clusterBallSound; 
+        public AudioSource clusterBallSound;
+        public bool SaveGameEnabled;
 
         private float angle;
         private float timePlayed;
         private float timeSinceLastAction;
         private string currentPowerUpName;
         private Vector3 spawnerStartLocation;
+        private bool loadFound;
 
         private void OnEnable()
         { 
@@ -48,20 +52,37 @@ namespace BrickBreak
         }
 
         /// <summary>
-        /// Funcrion to set all values back to zero. clear all objects currently on the screen and create a new line of blocks
+        /// Function to set all values back to zero. clear all objects currently on the screen and create a new line of blocks
         /// </summary>
         public void NewGame()
         {
-           // ads.LoadAd();
             timePlayed = 0;
             wave = 0;
             score = 0;
             wreckingBallMeter = 0;
-            gameLost = false;
             wreckingBallReady = false;
             ClearScreen();
-            GenerateNewLine();
-            spawner.transform.position = spawnerStartLocation;
+
+            if (File.Exists(Application.persistentDataPath + "/gamesave.save") && !gameLost && SaveGameEnabled)
+            {
+                Load();
+            }
+            else
+            {
+                GenerateNewLine();
+                spawner.transform.position = spawnerStartLocation;
+            }
+
+            gameLost = false;
+        }
+
+        public void RestartGame()
+        {
+            Time.timeScale = 1;
+            pauseMenu.SetActive(false);
+            generatingBlocks = false;
+            gameLost = true;
+            NewGame();
         }
 
         public void Pause()
@@ -75,6 +96,14 @@ namespace BrickBreak
         {
             Time.timeScale = 1;
             pauseMenu.SetActive(false);
+        }
+
+        public void Menu()
+        {
+            Time.timeScale = 1;
+            pauseMenu.SetActive(false);
+            generatingBlocks = false;
+            Save();
         }
 
         /// <summary>
@@ -274,6 +303,109 @@ namespace BrickBreak
             currentPowerUpName = powerUpName;
             wreckingBallReady = true;
             spawner.wreckingBallAvailable = level;
+        }
+
+        public SaveSystem CreateSave()
+        {
+            PowerUp[] powerUps = FindObjectsOfType<PowerUp>();
+            SaveSystem save = new SaveSystem();
+            save.blockData = new List<KeyValuePair<int, SerialVector3>>();
+            save.powerUpData = new List<KeyValuePair<int, SerialVector3>>();
+            save.wave = this.wave;
+            save.score = (int)this.score;
+            save.powerUpLevel = spawner.wreckingBallAvailable;
+            save.powerUpName = currentPowerUpName;
+            save.powerUpAvailable = wreckingBallReady;
+            save.spawnerPosition = new SerialVector3(spawner.transform.position);
+
+            foreach (Block block in remainingBlocks)
+            {
+                Vector3 blockPos;
+                if (block.movingDown)
+                {
+                    blockPos = block.nextPos;
+                } else
+                {
+                    blockPos = block.transform.position;
+                }
+                KeyValuePair<int, SerialVector3> blockdat = new KeyValuePair<int, SerialVector3>((int)block.hits, new SerialVector3(blockPos));
+                save.blockData.Add(blockdat);
+            }
+
+            foreach (PowerUp powerup in powerUps)
+            {
+                Vector3 pos;
+                if (powerup.movingDown)
+                {
+                    pos = powerup.nextPos;
+                } else
+                {
+                    pos = powerup.transform.position;
+                }
+                KeyValuePair<int, SerialVector3> powerdat = new KeyValuePair<int, SerialVector3>(powerup.wreckingBallValue, new SerialVector3(pos));
+                save.powerUpData.Add(powerdat);
+            } 
+
+            return save;
+        }
+
+        public void Save()
+        {
+            SaveSystem save = CreateSave();
+
+            try
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+                FileStream file = File.Create(Application.persistentDataPath + "/gamesave.save");
+                bf.Serialize(file, save);
+                file.Close();
+            } catch (Exception e)
+            {
+                Debug.LogError("SaveFailed with message: " + e.Message);
+            }
+            
+        }
+
+        public void Load()
+        {
+            SaveSystem save = new SaveSystem();
+            try
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+                FileStream file = File.Open(Application.persistentDataPath + "/gamesave.save", FileMode.Open);
+                save = (SaveSystem)bf.Deserialize(file);
+                file.Close();
+            } catch(Exception e)
+            {
+                loadFound = false;
+                Debug.LogError("Load Failed with reason: " + e.Message);
+                return;
+            }
+            
+
+            foreach(KeyValuePair<int, SerialVector3> blockdat in save.blockData)
+            {
+                Block newBlock = Instantiate(blockObjects[0], blockdat.Value.GetVector3(), Quaternion.identity);
+                newBlock.hits = blockdat.Key;
+                newBlock.SetUpBlock();
+            }
+
+            foreach (KeyValuePair<int, SerialVector3> powerdat in save.powerUpData)
+            {
+                PowerUp newPower = Instantiate(PowerUps[powerdat.Key], powerdat.Value.GetVector3(), Quaternion.identity);
+            }
+
+            score = save.score;
+            wave = save.wave;
+
+            spawner.transform.position = save.spawnerPosition.GetVector3();
+
+            if(save.powerUpAvailable)
+            {
+                ChangeWreckingBallLevel(save.powerUpLevel, save.powerUpName);
+            }
+
+            loadFound = true;
         }
     }
 }

@@ -8,6 +8,8 @@ namespace BrickBreak
     public class Ball : MonoBehaviour
     {
         public Vector3 direction;
+        public Vector3 currentDirection;
+        public bool useWave;
         public bool moving;
         public float speed;
         public BallSpawner parent;
@@ -28,6 +30,7 @@ namespace BrickBreak
 
         protected void OnEnable()
         {
+            useWave = hits > 1;
             sound = GetComponent<AudioSource>();
             lastHit = "";
             durability = 100;
@@ -52,7 +55,15 @@ namespace BrickBreak
 
             if(moving)
             {
-                body.velocity = (direction * (speed));
+                Vector3 newVelocity = direction * speed;
+                Vector3 waveFactor = new Vector3(Mathf.Sin(Time.time * 20) * newVelocity.y, -(Mathf.Sin(Time.time * 20) * newVelocity.x), 0);
+                if(useWave)
+                {
+                    newVelocity += waveFactor;
+                }
+                
+                currentDirection = newVelocity.normalized;
+                body.velocity = newVelocity;
             }
 
             if ((transform.position.x >= edgeX && direction.x > 0))
@@ -67,7 +78,7 @@ namespace BrickBreak
             {
                 lastHit = transform.position.ToString();
                 Bounce(new Vector3(0, -1, 0));
-            } else if(transform.position.y <= parent.transform.position.y - 0.2f)
+            } else if(transform.position.y <= parent.transform.position.y - 0.9f)
             {
                 if(parent.canMove && transform.position.x < edgeX && transform.position.x > -edgeX)
                 {
@@ -117,7 +128,7 @@ namespace BrickBreak
         {
             //Vector3 direction = transform.position - previousPosition;
             float length = speed * Time.deltaTime;
-            RaycastHit2D hit = Physics2D.Raycast(previousPosition, direction, 3f * length);
+            RaycastHit2D hit = Physics2D.Raycast(previousPosition, currentDirection, 3f * length);
             if (hit.collider != null && hit.collider.CompareTag("block") && 
                 !lastHit.Equals(hit.transform.position.ToString()))
             {
@@ -132,7 +143,7 @@ namespace BrickBreak
                 
             } else
             {
-                Debug.DrawRay(transform.position, direction, Color.red);
+                Debug.DrawRay(transform.position, currentDirection, Color.red);
             }
 
             this.previousPosition = transform.position;

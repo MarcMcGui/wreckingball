@@ -129,22 +129,24 @@ namespace BrickBreak
             //Vector3 direction = transform.position - previousPosition;
             float length = speed * Time.deltaTime;
             RaycastHit2D hit = Physics2D.Raycast(previousPosition, currentDirection, 3f * length);
-            if (hit.collider != null && hit.collider.CompareTag("block") && 
-                !lastHit.Equals(hit.transform.position.ToString()))
+            if (hit.collider != null && hit.collider.CompareTag("block") &&
+                !lastHit.Equals(hit.transform.position.ToString()) && transform.position.y > (parent.transform.position.y + 0.5f))
             {
                 lastHit = hit.transform.position.ToString();
                 Block hitBlock = hit.transform.gameObject.GetComponent<Block>();
                 Debug.DrawRay(previousPosition, direction, Color.green);
-                if( hits < 20)
+                if (hits < 20)
                 {
                     Bounce(hit.normal);
                 }
                 hitBlock.Hit(hits);
-                
-            } else
+
+            }
+            else
             {
                 Debug.DrawRay(transform.position, currentDirection, Color.red);
             }
+
 
             this.previousPosition = transform.position;
         }

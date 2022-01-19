@@ -33,6 +33,8 @@ namespace BrickBreak
         public AudioSource blockSound;
         public AudioSource clusterBallSound;
         public bool SaveGameEnabled;
+        public bool enableAds;
+        public bool enableAnalytics;
 
         private float angle;
         private float timePlayed;
@@ -73,6 +75,10 @@ namespace BrickBreak
                 spawner.transform.position = spawnerStartLocation;
             }
 
+            if(enableAds)
+            {
+                ads.LoadAd();
+            }
             gameLost = false;
         }
 
@@ -268,8 +274,11 @@ namespace BrickBreak
 
         public void Launch()
         {
-            ads.LoadAd();
-            Analytics.CustomEvent("Launch Action made, time since last action: " + timeSinceLastAction);
+            if(enableAnalytics)
+            {
+                Analytics.CustomEvent("Launch Action made, time since last action: " + timeSinceLastAction);
+            }
+
             if (spawner.BallsInWorld.Length < 1 && !generatingBlocks && !wreckingBallReady)
             {
                 spawner.LaunchBalls();
@@ -286,12 +295,19 @@ namespace BrickBreak
 
         public void GameOver()
         {
-            Analytics.CustomEvent("Game over after: " + timePlayed);
-            Analytics.CustomEvent("Game Ended on Wave: " + wave);
-            Analytics.CustomEvent("Game Ended with Score: " + score);
+            if(enableAnalytics)
+            {
+                Analytics.CustomEvent("Game over after: " + timePlayed);
+                Analytics.CustomEvent("Game Ended on Wave: " + wave);
+                Analytics.CustomEvent("Game Ended with Score: " + score);
+            }
+
             ClearScreen();
             gameLost = true;
-            ads.ShowAd();
+            if(enableAds)
+            {
+                ads.ShowAd();
+            }
             if(EOnGameOver != null)
             {
                 EOnGameOver();

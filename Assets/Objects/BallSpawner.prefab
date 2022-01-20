@@ -192,7 +192,6 @@ MonoBehaviour:
   canMove: 0
   aimLocation: {fileID: 4907372169356946942}
   controller: {fileID: 0}
-  prevPosition: {x: 0, y: 0, z: 0}
   newPosition: {x: 0, y: 0, z: 0}
   arrow: {fileID: 4907372169356946942}
   isLaunching: 0
@@ -200,6 +199,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 52e75c4c35c63c448b82fd6f194838b8, type: 3}
   - {fileID: 21300000, guid: 4dde8956cb20e0444a82702ac368f2f3, type: 3}
   - {fileID: 21300000, guid: 9b5cf1e4342c8304c95a1bd2404f853f, type: 3}
+  wreckingBallColors:
+  - {r: 0.627451, g: 0.8666667, b: 0.6509804, a: 1}
+  - {r: 1, g: 0.6901961, b: 0.38039216, a: 1}
+  - {r: 0.8862745, g: 0.12941177, b: 0.8156863, a: 1}
   ballsLeftDisplay: {fileID: 0}
   newSpawnerLocation: {fileID: 7363460064649860536, guid: 88c24a7131be6f04a841924671b47b58, type: 3}
 --- !u!120 &4907372169930105622

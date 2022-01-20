@@ -91,15 +91,16 @@ namespace BrickBreak
 
         private void SetColor()
         {
-            float redValue = 1 - (hits / 40);
-            float blueValue = 0 + (hits / 40);
+            float blueValue = 1 - (hits / 40);
+            float redValue = 0 + (hits / 40);
             image.color = new Color(redValue, 0.7f, blueValue);
         }
 
         public void Break()
         {
             controller.blockSound.Play();
-            Instantiate(breakParticles, transform.position, transform.rotation);
+            GameObject breakParticle = Instantiate(breakParticles, transform.position, transform.rotation);
+            breakParticle.GetComponent<ParticleSystem>().startColor = image.color;
             Destroy(gameObject);
         }
 

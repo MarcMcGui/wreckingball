@@ -78,7 +78,7 @@ namespace BrickBreak
             {
                 lastHit = transform.position.ToString();
                 Bounce(new Vector3(0, -1, 0));
-            } else if(transform.position.y <= parent.transform.position.y - 0.9f)
+            } else if(transform.position.y <= parent.transform.position.y - 1.5f)
             {
                 if(parent.canMove && transform.position.x < edgeX && transform.position.x > -edgeX)
                 {

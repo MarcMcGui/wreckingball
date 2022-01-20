@@ -44,7 +44,8 @@ namespace BrickBreak
         private bool loadFound;
 
         private void OnEnable()
-        { 
+        {
+            Screen.sleepTimeout = SleepTimeout.NeverSleep;
             timeSinceLastAction = 0;
             timePlayed = 0;
             angle = 0;
@@ -253,23 +254,31 @@ namespace BrickBreak
 
         public void RotateSpawner(float direction)
         {
-            Analytics.CustomEvent("Roatate Action made, time since last action: " + timeSinceLastAction);
+            Debug.Log("rotating");
+            if(enableAnalytics)
+            {
+                Analytics.CustomEvent("Roatate Action made, time since last action: " + timeSinceLastAction);
+            }
+            
             timeSinceLastAction = 0;
+
             if(direction == 0)
             {
                 angle = 0;
                 return;
             }
             
-            angle += direction * Time.deltaTime;
+            
 
             float rotateTo = spawner.transform.eulerAngles.z + direction;
             
             
-            if (rotateTo > 10 && rotateTo < 170)
+            if (rotateTo > 10 && rotateTo < 170 && angle != 0)
             {
                 spawner.transform.Rotate(0, 0, direction);
             }
+
+            angle += direction * Time.deltaTime;
         }
 
         public void Launch()

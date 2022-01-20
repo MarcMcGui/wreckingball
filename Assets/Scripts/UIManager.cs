@@ -61,8 +61,19 @@ namespace BrickBreak
             endScreen.SetActive(false);
         }
 
+        public void NewGame()
+        {
+            introScreen.SetActive(false);
+            endScreen.SetActive(false);
+            controller.RestartGame();
+            controller.EOnGameOver += DisplayGameEnd;
+            gameUI.SetActive(true);
+            ads.InitializeAd();
+        }
+
         public void Quit()
         {
+            Screen.sleepTimeout = SleepTimeout.SystemSetting;
             Application.Quit();
         }
 

@@ -21,6 +21,7 @@ namespace BrickBreak
         public GameObject arrow;
         public bool isLaunching;
         public Sprite[] images;
+        public Color[] wreckingBallColors;
         public GameObject ballsLeftDisplay;
         public GameObject newSpawnerLocation;
         
@@ -53,9 +54,11 @@ namespace BrickBreak
             if(controller.wreckingBallReady)
             {
                 sprite.sprite = images[wreckingBallAvailable];
+                sprite.color = wreckingBallColors[wreckingBallAvailable];
             } else
             {
                 sprite.sprite = defaultSprite;
+                sprite.color = Color.white;
             }
 
             BallsInWorld = FindObjectsOfType<Ball>();

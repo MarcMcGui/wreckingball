@@ -55,6 +55,9 @@ MonoBehaviour:
   spawner: {fileID: 0}
   blockObjects:
   - {fileID: 8319147117462226987, guid: 47567ef1a9df50049aec14ee95b1f107, type: 3}
+  - {fileID: 8319147117462226987, guid: 8819262fbaaaf5449a65614a8783edd4, type: 3}
+  - {fileID: 8319147117462226987, guid: c2beb07663dd03b43a7c67df645f49ff, type: 3}
+  - {fileID: 8319147117462226987, guid: d4135d789369eff45a80aeff6b9c4b05, type: 3}
   remainingBlocks: []
   wreckingBallNumbers:
   - 200
@@ -68,6 +71,9 @@ MonoBehaviour:
   ads: {fileID: 0}
   blockSound: {fileID: 4746400037344984428}
   clusterBallSound: {fileID: 4690303255904581131}
+  SaveGameEnabled: 0
+  enableAds: 0
+  enableAnalytics: 0
 --- !u!82 &4746400037344984428
 AudioSource:
   m_ObjectHideFlags: 0

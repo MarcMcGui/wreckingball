@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 namespace BrickBreak
@@ -16,6 +17,7 @@ namespace BrickBreak
         public Rigidbody2D body;
         public int hits;
         public AudioSource sound;
+        public scoreBonus scoreVisual;
 
         [SerializeField]
         private bool isTouchingBlock;
@@ -78,7 +80,7 @@ namespace BrickBreak
             {
                 lastHit = transform.position.ToString();
                 Bounce(new Vector3(0, -1, 0));
-            } else if(transform.position.y <= parent.transform.position.y - 1.5f)
+            } else if(transform.position.y <= (parent.transform.position.y - 2.5f))
             {
                 if(parent.canMove && transform.position.x < edgeX && transform.position.x > -edgeX)
                 {
@@ -166,7 +168,15 @@ namespace BrickBreak
                 parent.ChangeLocation();
                 parent.isLaunching = false;
             }
+            parent.ballsLeftDisplay.GetComponent<TextMeshPro>().text = "x" + parent.maxBalls;
+            Destroy(gameObject);
+        }
 
+        public void BreakSelfScore()
+        {
+            scoreBonus newScoreVisual = Instantiate(scoreVisual, transform.position, Quaternion.identity);
+            newScoreVisual.updateScore(hits);
+            parent.controller.score += hits;
             Destroy(gameObject);
         }
     }

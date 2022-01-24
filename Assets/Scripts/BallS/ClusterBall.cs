@@ -33,7 +33,8 @@ namespace BrickBreak
             float length = speed * Time.deltaTime;
             RaycastHit2D hit = Physics2D.Raycast(previousPosition, direction, 2 * length);
 
-            if (hit.collider != null && hit.collider.CompareTag("block"))
+            if (hit.collider != null && hit.collider.CompareTag("block") &&
+                transform.position.y > (parent.transform.position.y + 0.5f))
             {
                 Split();
             }

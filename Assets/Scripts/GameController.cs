@@ -35,6 +35,7 @@ namespace BrickBreak
         public bool SaveGameEnabled;
         public bool enableAds;
         public bool enableAnalytics;
+        public int startingBalls;
 
         private float angle;
         private float timePlayed;
@@ -65,7 +66,7 @@ namespace BrickBreak
             wreckingBallMeter = 0;
             wreckingBallReady = false;
             ClearScreen();
-
+            spawner.maxBalls = startingBalls;
             if (File.Exists(Application.persistentDataPath + "/gamesave.save") && !gameLost && SaveGameEnabled)
             {
                 Load();
@@ -143,6 +144,39 @@ namespace BrickBreak
             remainingBlocks = FindObjectsOfType<Block>();
         }
 
+        public void ClearScreenBonus()
+        {
+            StopAllCoroutines();
+
+            remainingBlocks = FindObjectsOfType<Block>();
+
+            if (remainingBlocks.Length > 0)
+            {
+                foreach (Block block in remainingBlocks)
+                {
+                    Destroy(block.gameObject);
+
+                }
+
+            }
+
+            if (spawner.BallsInWorld.Length > 0)
+            {
+                foreach (Ball ball in spawner.BallsInWorld)
+                {
+                    ball.BreakSelfScore();
+                }
+            }
+
+            spawner.isLaunching = false;
+            spawner.canMove = false;
+            if(spawner.newSpawn != null)
+            {
+                spawner.ChangeLocation();
+            }
+            remainingBlocks = FindObjectsOfType<Block>();
+        }
+
         public void Update()
         {
             if(wreckingBallReady)
@@ -195,33 +229,37 @@ namespace BrickBreak
             wave += 1;
             int maxHitValue;
             int maxPowerUpLevel;
+            int amountOfBlocksToSpawn;
             //max hit value determines how many hits the blocks can possibly be assigned
             //scales with wave level with a the highest possible value being 40
             if (wave < 20)
             {
                 maxPowerUpLevel = wave / 6;
+                amountOfBlocksToSpawn = wave / 5;
                 maxHitValue = wave * 2;
             }
             else {
                 maxHitValue = 40;
                 maxPowerUpLevel = 3;
+                amountOfBlocksToSpawn = 4;
             }
 
 
             float halfHeight = Camera.main.orthographicSize;
             float halfWidth = Camera.main.aspect * halfHeight;
             float edgeX = (Camera.main.orthographicSize * Screen.width / Screen.height);
-            float resolutionOffSet = (edgeX - 0.95f) / 2f; 
+            float resolutionOffSet = (edgeX - 0.95f) / 2f;
+            bool createdPowerUpThisRow = false;
             for (int i = 0; i < (halfWidth); i++)
             {
-
+                
                 int createBlockChance = UnityEngine.Random.Range(0, 100);
                 int powerUpToSpawn = UnityEngine.Random.Range(0, maxPowerUpLevel);
                 int powerUpChance = UnityEngine.Random.Range(0, 100);
+                Vector3 location = new Vector3((-(edgeX - 1.05f) + (i * (1.85f))), 6f, 0);
                 if (createBlockChance < 70)
                 {
-                    Vector3 location = new Vector3((-(edgeX - 1.05f) + (i * (1.85f))), 6f, 0);
-                    Block newBlock = Instantiate(blockObjects[0], transform);
+                    Block newBlock = Instantiate(blockObjects[UnityEngine.Random.Range(0,amountOfBlocksToSpawn)], transform);
                     newBlock.hits = UnityEngine.Random.Range(1, maxHitValue);
                     newBlock.maxHits = newBlock.hits;
                     newBlock.SetUpBlock();
@@ -231,12 +269,19 @@ namespace BrickBreak
                     newBlock.nextPos = location;
                 } else if (powerUpChance < 10)
                 {
-                    Vector3 location = new Vector3(-(edgeX - 0.95f) + (i * 1.85f), 6f, 0);
                     PowerUp newPowerUp = Instantiate(PowerUps[powerUpToSpawn], transform);
                     newPowerUp.transform.position = location;
                     location.y = 3.9f;
                     newPowerUp.movingDown = true;
                     newPowerUp.nextPos = location;
+                } else if (powerUpChance < (90 - spawner.maxBalls) && !createdPowerUpThisRow)
+                {
+                    PowerUp ballPowerUp = Instantiate(PowerUps[PowerUps.Length - 1], transform);
+                    ballPowerUp.transform.position = location;
+                    location.y = 3.9f;
+                    ballPowerUp.movingDown = true;
+                    ballPowerUp.nextPos = location;
+                    createdPowerUpThisRow = true;
                 }
                 
             }
@@ -338,6 +383,7 @@ namespace BrickBreak
             save.powerUpData = new List<KeyValuePair<int, SerialVector3>>();
             save.wave = this.wave;
             save.score = (int)this.score;
+            save.maxBalls = spawner.maxBalls;
             save.powerUpLevel = spawner.wreckingBallAvailable;
             save.powerUpName = currentPowerUpName;
             save.powerUpAvailable = wreckingBallReady;
@@ -353,7 +399,7 @@ namespace BrickBreak
                 {
                     blockPos = block.transform.position;
                 }
-                KeyValuePair<int, SerialVector3> blockdat = new KeyValuePair<int, SerialVector3>((int)block.hits, new SerialVector3(blockPos));
+                KeyValuePair<int, SerialVector3> blockdat = new KeyValuePair<int, SerialVector3>((int)block.hits, new SerialVector3(blockPos, block.blockType));
                 save.blockData.Add(blockdat);
             }
 
@@ -410,7 +456,7 @@ namespace BrickBreak
 
             foreach(KeyValuePair<int, SerialVector3> blockdat in save.blockData)
             {
-                Block newBlock = Instantiate(blockObjects[0], blockdat.Value.GetVector3(), Quaternion.identity);
+                Block newBlock = Instantiate(blockObjects[blockdat.Value.blockType], blockdat.Value.GetVector3(), Quaternion.identity);
                 newBlock.hits = blockdat.Key;
                 newBlock.SetUpBlock();
             }
@@ -423,6 +469,7 @@ namespace BrickBreak
             score = save.score;
             wave = save.wave;
 
+            spawner.maxBalls = save.maxBalls;
             spawner.transform.position = save.spawnerPosition.GetVector3();
 
             if(save.powerUpAvailable)

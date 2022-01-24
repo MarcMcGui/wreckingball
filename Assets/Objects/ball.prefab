@@ -115,12 +115,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   direction: {x: 0, y: 0, z: 0}
+  currentDirection: {x: 0, y: 0, z: 0}
+  useWave: 0
   moving: 0
   speed: 0
   parent: {fileID: 0}
   body: {fileID: -5680424460588770379}
   hits: 1
   sound: {fileID: 0}
+  scoreVisual: {fileID: 3528673017044491052, guid: f33a0f44a16c5774999091e854888454, type: 3}
   isTouchingBlock: 0
   durability: 0
 --- !u!50 &-5680424460588770379

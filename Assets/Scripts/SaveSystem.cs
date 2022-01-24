@@ -10,6 +10,7 @@ namespace BrickBreak
         public int wave;
         public int score;
         public int powerUpLevel;
+        public int maxBalls;
         public string powerUpName;
         public bool powerUpAvailable;
         public SerialVector3 spawnerPosition;
@@ -25,12 +26,21 @@ namespace BrickBreak
         float x;
         float y;
         float z;
+        public int blockType;
 
         public SerialVector3(Vector3 vector)
         {
             x = vector.x;
             y = vector.y;
             z = vector.z;
+        }
+
+        public SerialVector3(Vector3 vector, int blockType)
+        {
+            x = vector.x;
+            y = vector.y;
+            z = vector.z;
+            this.blockType = blockType;
         }
 
         public Vector3 GetVector3()

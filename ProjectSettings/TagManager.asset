@@ -9,6 +9,7 @@ TagManager:
   - wreckingBall
   - newPost
   - newPos
+  - spawner
   layers:
   - Default
   - TransparentFX

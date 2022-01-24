@@ -24,10 +24,10 @@ namespace BrickBreak
         public Color[] wreckingBallColors;
         public GameObject ballsLeftDisplay;
         public GameObject newSpawnerLocation;
-        
+        public GameObject newSpawn;
+
 
         private Vector3 direction;
-        private GameObject newSpawn;
         private LineRenderer aimLine;
         private SpriteRenderer sprite;
         private Sprite defaultSprite;
@@ -38,7 +38,7 @@ namespace BrickBreak
             controller = FindObjectOfType<GameController>();
             sprite = GetComponent<SpriteRenderer>();
             defaultSprite = sprite.sprite;
-            maxBalls = 25;
+            maxBalls = controller.startingBalls;
             ballsLeftDisplay.GetComponent<TextMeshPro>().text = "x" + maxBalls;
             wreckingBallAvailable = 0;
             aimLine = GetComponent<LineRenderer>();
@@ -135,7 +135,7 @@ namespace BrickBreak
                 direction = (aimLocation.transform.position - ball.transform.position).normalized;
                 ball.hits = (int)(Mathf.Pow(2, wreckingBallAvailable) * 10);
                 ball.direction = direction;
-                ball.speed = speedOfBalls / (1.5f + wreckingBallAvailable);
+               // ball.speed = speedOfBalls / (1.5f + wreckingBallAvailable);
                 ball.moving = true;
                 controller.wreckingBallMeter = 0;
                 controller.wreckingBallReady = false;

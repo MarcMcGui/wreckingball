@@ -21,6 +21,7 @@ namespace BrickBreak
         public AudioSource sound;
         public Color startColor;
         public Color endColor;
+        public int blockType;
 
         private SpriteRenderer image;
         private bool isBreaking;
@@ -99,6 +100,8 @@ namespace BrickBreak
         public void Break()
         {
             controller.blockSound.Play();
+            controller.remainingBlocks = FindObjectsOfType<Block>();
+            CheckForEmptyScreen();
             GameObject breakParticle = Instantiate(breakParticles, transform.position, transform.rotation);
             breakParticle.GetComponent<ParticleSystem>().startColor = image.color;
             Destroy(gameObject);
@@ -120,6 +123,15 @@ namespace BrickBreak
 
             transform.position = currentPosition;
             
+        }
+
+        protected void CheckForEmptyScreen()
+        {
+            if (controller.remainingBlocks.Length < 2)
+            {
+                controller.ClearScreenBonus();
+                controller.GenerateNewLine();
+            }
         }
     }
 }

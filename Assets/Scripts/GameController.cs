@@ -170,6 +170,7 @@ namespace BrickBreak
 
             spawner.isLaunching = false;
             spawner.canMove = false;
+            spawner.ballsLeftDisplay.GetComponent<TextMeshPro>().text = "x" + spawner.maxBalls;
             if(spawner.newSpawn != null)
             {
                 spawner.ChangeLocation();

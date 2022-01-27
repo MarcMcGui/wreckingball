@@ -147,6 +147,7 @@ namespace BrickBreak
         public void ClearScreenBonus()
         {
             StopAllCoroutines();
+            spawner.StopAllCoroutines();
 
             remainingBlocks = FindObjectsOfType<Block>();
 
@@ -218,9 +219,16 @@ namespace BrickBreak
                 {
                     if (block.transform.position.y < spawner.transform.position.y + 2f)
                     {
-                        GameOver();
-                        break;
-                    }
+                        if(block.CompareTag("block"))
+                        {
+                            GameOver();
+                            break;
+                        } else
+                        {
+                            Destroy(block.gameObject);
+                        }
+                        
+                    } 
                     block.nextPos = new Vector3(block.transform.position.x, block.transform.position.y - 0.925f, 0);
                     block.movingDown = true;
                 }
@@ -356,6 +364,8 @@ namespace BrickBreak
                 Analytics.CustomEvent("Game Ended on Wave: " + wave);
                 Analytics.CustomEvent("Game Ended with Score: " + score);
             }
+
+            spawner.maxBalls = startingBalls;
 
             ClearScreen();
             gameLost = true;

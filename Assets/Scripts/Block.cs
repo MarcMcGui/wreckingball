@@ -22,13 +22,24 @@ namespace BrickBreak
         public Color startColor;
         public Color endColor;
         public int blockType;
+        public GameObject warning;
 
         private SpriteRenderer image;
         private bool isBreaking;
+        private float warnAlpha;
+        private float warnAlphaChange;
        
 
         private void OnEnable()
         {
+            Color warnColorStart = new Color(1, 0, 0, 0);
+            
+            if(warning != null)
+            {
+                warning.GetComponent<SpriteRenderer>().color = warnColorStart;
+                warnAlpha = 0f;
+                warnAlphaChange = 0.01f;
+            }
             sound = GetComponent<AudioSource>();
             controller = FindObjectOfType<GameController>();
             image = GetComponent<SpriteRenderer>();
@@ -49,6 +60,23 @@ namespace BrickBreak
             if (movingDown)
             {
                 MoveDown(nextPos);
+            }
+
+            if((transform.position.y - 0.1f) < (controller.spawner.transform.position.y + 2f) && warning != null)
+            {
+                if (warnAlpha <= 0f)
+                {
+                    warnAlphaChange = 0.0008f;
+                }
+
+                if (warnAlpha >= 0.5f)
+                {
+                    warnAlphaChange = -0.0008f;
+                }
+
+                warnAlpha += warnAlphaChange;
+
+                warning.GetComponent<SpriteRenderer>().color = new Color(1, 0, 0, warnAlpha);
             }
         }
 

@@ -162,13 +162,15 @@ namespace BrickBreak
                 {
                     parent.ChangeLocation();
                     parent.controller.GenerateNewLine();
+                    parent.ballsLeftDisplay.GetComponent<TextMeshPro>().text = "x" + parent.maxBalls;
                 }
             } else if(hits > 1)
             {
                 parent.ChangeLocation();
                 parent.isLaunching = false;
+                parent.ballsLeftDisplay.GetComponent<TextMeshPro>().text = "x" + parent.maxBalls;
             }
-            parent.ballsLeftDisplay.GetComponent<TextMeshPro>().text = "x" + parent.maxBalls;
+            
             Destroy(gameObject);
         }
 

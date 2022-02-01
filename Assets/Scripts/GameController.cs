@@ -283,7 +283,7 @@ namespace BrickBreak
                     location.y = 3.9f;
                     newPowerUp.movingDown = true;
                     newPowerUp.nextPos = location;
-                } else if (powerUpChance < (90 - spawner.maxBalls) && !createdPowerUpThisRow)
+                } else if (powerUpChance < (90 - spawner.maxBalls) && !createdPowerUpThisRow && spawner.maxBalls < 50)
                 {
                     PowerUp ballPowerUp = Instantiate(PowerUps[PowerUps.Length - 1], transform);
                     ballPowerUp.transform.position = location;
@@ -366,7 +366,7 @@ namespace BrickBreak
             }
 
             spawner.maxBalls = startingBalls;
-
+            spawner.numberOfBalls = spawner.maxBalls;
             ClearScreen();
             gameLost = true;
             if(enableAds)
@@ -402,16 +402,20 @@ namespace BrickBreak
 
             foreach (Block block in remainingBlocks)
             {
-                Vector3 blockPos;
-                if (block.movingDown)
+                if(block != null && block.gameObject.CompareTag("block"))
                 {
-                    blockPos = block.nextPos;
-                } else
-                {
-                    blockPos = block.transform.position;
+                    Vector3 blockPos;
+                    if (block.movingDown)
+                    {
+                        blockPos = block.nextPos;
+                    }
+                    else
+                    {
+                        blockPos = block.transform.position;
+                    }
+                    KeyValuePair<int, SerialVector3> blockdat = new KeyValuePair<int, SerialVector3>((int)block.hits, new SerialVector3(blockPos, block.blockType));
+                    save.blockData.Add(blockdat);
                 }
-                KeyValuePair<int, SerialVector3> blockdat = new KeyValuePair<int, SerialVector3>((int)block.hits, new SerialVector3(blockPos, block.blockType));
-                save.blockData.Add(blockdat);
             }
 
             foreach (PowerUp powerup in powerUps)
